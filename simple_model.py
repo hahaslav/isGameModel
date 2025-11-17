@@ -130,6 +130,51 @@ def _(model, new_test_df):
 
 
 @app.cell
+def _(Image, mss):
+    def take_screenshot():
+        with mss() as sct:
+            new_screenshot = sct.grab(sct.monitors[0])
+        return Image.frombytes("RGB", new_screenshot.size, new_screenshot.bgra, "raw", "BGRX")
+    return (take_screenshot,)
+
+
+@app.cell
+def _(features, np, pd, resize_image, take_screenshot):
+    def prepare_screenshot():
+        images = []
+        image = take_screenshot()
+        resized_image = resize_image(image, 113, 64)
+        image_array = np.array(resized_image).astype('float32') / 255
+        flat_image = image_array.flatten()
+        images.append(flat_image)
+        df = pd.DataFrame(images, columns=features)
+        return df
+    return (prepare_screenshot,)
+
+
+@app.cell
+def _(mo):
+    live_refresh = mo.ui.refresh(["1s", "3s"], label="Evaluate desktop in real time")
+    return (live_refresh,)
+
+
+@app.cell(hide_code=True)
+def _(live_refresh, mo, model, prepare_screenshot):
+    mo.md(rf"""
+    {live_refresh}
+
+    {model.predict_proba(prepare_screenshot())[:, 1][0]:.2%}
+    """)
+    return
+
+
+@app.cell
+def _():
+    from mss.windows import MSS as mss
+    return (mss,)
+
+
+@app.cell
 def _():
     from sklearn.preprocessing import StandardScaler
     from sklearn.linear_model import LogisticRegression
