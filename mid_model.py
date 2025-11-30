@@ -48,7 +48,7 @@ def _(
     {classification_report(y_true, y_pred_binary, target_names=class_names)}
     ```
 
-    Тестова вибірка:
+    Валідаційна вибірка:
     - ROC AUC: {roc_auc:.4f}
     - Gini: {gini:.4f}
     """)
@@ -263,7 +263,7 @@ def _(inference_model, live_refresh, mo, take_screenshot_for_model):
     mo.md(rf"""
     {live_refresh}
 
-    {float(inference_model.predict(take_screenshot_for_model(), verbose=0)[0][0]):.2%}
+    {1 - float(inference_model.predict(take_screenshot_for_model(), verbose=0)[0][0]):.2%}
     """)
     return
 
