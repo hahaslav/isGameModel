@@ -13,3 +13,5 @@ __marimo__/
 game/
 work/
 new images/
+dataset/
+*.keras
